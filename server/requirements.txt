@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+torchvision
+sqlalchemy
+pymysql
+cryptography
+pika
