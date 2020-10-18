@@ -1,8 +1,7 @@
--------------- DATABASE SCHEMA -------------
+--  DATABASE SCHEMA
 -- |    uuid     |     img     | prediction |
 -- |    (str)    |   (bytes)   |   (str)    |
 -- |    (50)     |    (16MB)   |   (512)    |
--- -------------------------------------------
 -- |   cbf6d9f6  |   /9j/4Q... |     dog    |
 CREATE DATABASE IF NOT EXISTS prediction;
 USE prediction;

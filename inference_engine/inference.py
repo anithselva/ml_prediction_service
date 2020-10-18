@@ -37,10 +37,6 @@ imagenet_class_index = json.load(open('./inference_engine/imagenet_class_index.j
 model = models.squeezenet1_0(pretrained=True, progress=True)
 model.eval()
 
-class ImagePred(BaseModel):
-    name: str
-    data: str
-
 SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:rootpassword@database:3306/prediction"
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)

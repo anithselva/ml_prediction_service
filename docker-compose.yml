@@ -2,8 +2,8 @@ version: "3.8"
 
 services:
 
+  
   inference-engine:
-    # Location of Dockerfile if needed
     build: 
         context: .
         dockerfile: ./inference_engine/Dockerfile
@@ -12,8 +12,6 @@ services:
       - rabbitmq
       - database
       - server
-    # ports:
-    #   - "5672:5672"
     networks:
       - webnet
 
@@ -23,8 +21,6 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-    # volumes:
-    #   - 'rabbitmq_data:/data'
     hostname: rabbitmq
     volumes:
         - rabbitmq_data
@@ -46,10 +42,8 @@ services:
         MYSQL_ROOT_PASSWORD: rootpassword
         MYSQL_USER: user
         MYSQL_PASSWORD: userpassword
-    
     networks:
       - webnet
-
   server:
     # Location of Dockerfile if needed
     build: 
@@ -58,10 +52,13 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-      - rabbitmq
       - database
+      - rabbitmq
     #   - inference-engine
+    restart: on-failure
     networks:
       - webnet
+
+
 networks:
   webnet:
