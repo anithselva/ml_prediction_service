@@ -101,6 +101,43 @@ predcition: VARCHAT - 50 Characters
 
 ## How to Test:
 
+
+
+## Batch Test
+
+A batch of test images can be run through by running the following python script
+
+```
+cd test
+python batch_test.py
+```
+
+A total of 215 images will be looped through, printing out the response of both the POST (prediction request) and GET (prediction result).
+
+A sample terminal output is as follows:
+
+```
+Image 1: Filename ILSVRC2012_test_00001423.JPEG
+{'uuid': 'f9041ecf'}
+{'prediction': 'pencil_sharpener'}
+
+
+Image 2: Filename dog.jpg
+{'uuid': 'a03fdb51'}
+{'prediction': 'dogsled'}
+
+
+Image 3: Filename ILSVRC2012_test_00001024.JPEG
+{'uuid': 'ba538737'}
+{'prediction': 'projector'}
+
+
+Image 4: Filename ILSVRC2012_test_00000770.JPEG
+{'uuid': 'b086b047'}
+{'prediction': 'marmoset'}
+```
+
+## End-to-End Test
 The implemented tests test the system end-to-end for the following:
 
 (1) Server status 
