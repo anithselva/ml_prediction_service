@@ -1,8 +1,9 @@
 version: "3.8"
 
 services:
-
   
+  # Inference Engine to Run Predictions
+  # Popping out of the MQ
   inference-engine:
     build: 
         context: .
@@ -15,7 +16,8 @@ services:
     networks:
       - webnet
 
-  # Asynchronous Queue
+  # RabbitMQ for Message Queueing to handle
+  # predictions in FIFO 
   rabbitmq:
     image: "rabbitmq:3-management"
     ports:
@@ -27,6 +29,7 @@ services:
     networks:
       - webnet
 
+  # SQL Database to handle transactions
   database:
     image: mysql
     hostname: database
@@ -34,7 +37,6 @@ services:
         - "3306:3306"
     command: 
         --sort_buffer_size=100000000
-        # --init-file /data/application/init.sql
     volumes:
         - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
@@ -44,8 +46,9 @@ services:
         MYSQL_PASSWORD: userpassword
     networks:
       - webnet
+
+  # Web Server with REST endpoints for predictions
   server:
-    # Location of Dockerfile if needed
     build: 
         context: .
         dockerfile: ./server/Dockerfile
@@ -54,11 +57,10 @@ services:
     depends_on:
       - database
       - rabbitmq
-    #   - inference-engine
     restart: on-failure
     networks:
       - webnet
 
-
+# Set up a bridge for all containers
 networks:
   webnet:

@@ -14,7 +14,7 @@ from PIL import Image
 import json
 import io
 
-# Predicition related function
+# Prediction related function
 def transform_image(image_bytes):
     my_transforms = transforms.Compose([transforms.Resize(255),
                                         transforms.CenterCrop(224),
@@ -32,6 +32,7 @@ def get_prediction(image_bytes):
     predicted_idx = str(y_hat.item())
     return imagenet_class_index[predicted_idx]
 
+# Callback function to handle messages coming out of MQ
 def callback(ch, method, properties, body):
     uuid = str(body.decode("utf-8"))
     print("Received request for prediction UUID %s" % uuid)
@@ -69,12 +70,12 @@ if __name__ == '__main__':
     except:
         raise Exception("Couldn't connect to database")
 
-    # Set up and load model
+    # Set up and load PyTorch model
     imagenet_class_index = json.load(open('./inference_engine/imagenet_class_index.json'))
     model = models.squeezenet1_0(pretrained=True, progress=True)
     model.eval()
 
-
+    # Start channel to handle messages with callback
     channel.basic_consume(
         queue=queue_name, on_message_callback=callback, auto_ack=True)
 

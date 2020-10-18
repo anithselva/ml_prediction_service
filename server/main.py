@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from fastapi.responses import JSONResponse
 import pika 
 import uuid
+import uvicorn
 
 # SQL Alchemy
 from sqlalchemy import create_engine
@@ -99,5 +100,3 @@ async def read_table(prediction_uuid: str):
         return {"prediction": None}
     else:
         return {"prediction": preds.prediction}
-
-
