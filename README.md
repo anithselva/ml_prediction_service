@@ -95,10 +95,9 @@ curl --location --request GET 'http://127.0.0.1:5000/predictions/ab2o5pd2/'
 (3) Predictions are also permitted to be stored in the database. No purging of past predictions is required
 
 
-
 ## How to Test:
 
-
+There are two ways to test the system: (1) Batch Test and (2) End to End Test.
 
 ## Batch Test
 
@@ -183,6 +182,16 @@ This would :
 Due to time constraints, only a limited number of tests were written to verify functionality of the entire system. Given more time, unit tests would be written to test the system in smaller modules.
 
 The current tests rely on a live deployment. When unit tests are written, they would not rely on a deployed system, but instead only consider the logic itself. Useful metrics such as code coverage can be measured through that type of test system, and can also be used to gate pull-requests, and deployments (CI/CD)
+
+## Error Handling
+
+Due to time constraints, the level of error handling in the repository is minimal. With the system being made of multiple microsystems, it is especially important for error handling in order to improve the robustness of the overall system.
+
+Exceptions should be raised whenever necessary. Further, bad requests should also return Exceptions to the user to ensure that they can handle them as they wish to.
+
+
+# Appendix 
+
 
 ## System Flow
 
