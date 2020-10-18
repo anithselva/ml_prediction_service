@@ -60,7 +60,7 @@ async def post_prediction(ImagePred: ImagePred):
         }
 
     Example of curl:
-    curl --location --request POST 'http://127.0.0.1:5000/image/' \
+    curl --location --request POST 'http://127.0.0.1:5000/inference/image/' \
     --header 'Content-Type: text/plain' \
     --data-raw '{
         "name": "dog",
