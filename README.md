@@ -189,6 +189,10 @@ Due to time constraints, the level of error handling in the repository is minima
 
 Exceptions should be raised whenever necessary. Further, bad requests should also return Exceptions to the user to ensure that they can handle them as they wish to.
 
+## Environment and Secrets
+
+Currently, environment names and secrets are hardcoded into the repo. This should not be the case. They should be passed into the container via a secrets management service, and then propagated into the code through ENV variables.
+
 
 # Appendix 
 
