@@ -167,7 +167,7 @@ OK
 
 ### Image Storage and Message Transfer
 
-The base64 encoded raw image is being written directly to the database by the server, when a new UUID is generated, and the UUID alone is passed to the MQ. This decoupling mwas done in order to reduce the size of the payload being transported in the MQ. While this achieves that purpose, it is advised that rather than passing the raw image through message queues or storing it directly in the database, that the server directly store the image in a data volume (i.e. S3 bucket), and pass the **link** to the image with the UUID in the MQ. 
+The base64 encoded raw image is being written directly to the database by the server, when a new UUID is generated, and the UUID alone is passed to the MQ. This decoupling mwas done in order to reduce the size of the payload being transported in the MQ. While this achieves that purpose, it is advised that rather than passing the raw image through message queues or storing it directly in the database, that the server directly store the image in a data volume (i.e. S3 bucket), and pass the **link** to the image with the UUID in the MQ for strage in the database. The revised schema of the DB would be: UUID, IMG-URL, PREDICTION
 
 This would :
 
@@ -176,6 +176,8 @@ This would :
 (2) reduce the size of the database, 
 
 (3) eliminate race condition between the server and the prediction engine. (For example, the current implementation assumes the server write to the DB will preceed the prediction engine inference for the same UUID. This may not be true depending on the latency of the DB)
+
+## Robustness
 
 ### Testing
 
