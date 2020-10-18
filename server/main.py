@@ -17,15 +17,16 @@ import io
 # SQL Alchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from PredictionEntry import PredictionEntry
+from db.PredictionEntry import PredictionEntry
 
 # Set up and load model
-imagenet_class_index = json.load(open('imagenet_class_index.json'))
+imagenet_class_index = json.load(open('./server/imagenet_class_index.json'))
 model = models.squeezenet1_0(pretrained=True)
 model.eval()
 
-# connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-# channel = connection.channel()
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+channel = connection.channel()
+channel.queue_declare(queue='pred_queue')
 
 # Predicition related function
 def transform_image(image_bytes):
@@ -46,14 +47,11 @@ def get_prediction(image_bytes):
     predicted_idx = str(y_hat.item())
     return imagenet_class_index[predicted_idx]
 
-
-app = FastAPI()
-
 class ImagePred(BaseModel):
     name: str
     data: str
 
-
+app = FastAPI()
 SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:rootpassword@localhost:3306/prediction"
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -75,6 +73,9 @@ async def post_prediction(ImagePred: ImagePred):
     session.add(newPrediction)
     session.commit()
     resp = {"uuid": prediction_uuid}
+
+    channel.basic_publish(exchange='', routing_key='pred_queue', body=prediction_uuid)
+
     return resp
 
 @app.get("/get_prediction/{prediction_uuid}")
