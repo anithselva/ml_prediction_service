@@ -1,6 +1,5 @@
 fastapi
 uvicorn
-torchvision
 sqlalchemy
 pymysql
 cryptography

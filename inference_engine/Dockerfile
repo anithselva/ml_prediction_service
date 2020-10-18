@@ -16,5 +16,3 @@ RUN pip install -r ./inference_engine/requirements.txt
 # wait_for_it.sh will try to communicate with rabbitmq:5672 and only proceed with running
 # the consumer if it suceeds.
 CMD ["./utils/wait_for_it.sh" ,  "rabbitmq:5672", "--strict" , "--timeout=30" , "--" , "python", "./inference_engine/inference.py"]
-
-# CMD ["python", "./inference_engine/inference.py"]

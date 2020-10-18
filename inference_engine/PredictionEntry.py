@@ -3,6 +3,10 @@ from sqlalchemy import Column, Integer, String, Text
 
 Base = declarative_base()
 
+# PredictionEntry Class to match DB Schema
+# Required to convert SQL Query into Python object
+# Each member variable represents a column in the
+# database, with the appropriate var types and lengths
 class PredictionEntry(Base):
     __tablename__ = 'predictions'
     uuid = Column(String(50),primary_key=True)
