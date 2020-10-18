@@ -1,4 +1,6 @@
 import pika
+from pydantic import BaseModel
+import base64
 
 # SQL Alchemy
 from sqlalchemy import create_engine
@@ -12,24 +14,17 @@ from PIL import Image
 import json
 import io
 
-from pydantic import BaseModel
-
-import base64
-
+# Try to establish connection with MQ
+# Raise exception if this is not possible
 try:
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
 except:
     raise Exception("Couldn't connect to rabbitmq")
-
 channel = connection.channel()
-
 channel.exchange_declare(exchange='predictions_exchange', exchange_type='fanout')
-
 result = channel.queue_declare(queue='pred_queue', exclusive=True)
 queue_name = result.method.queue
-
 channel.queue_bind(exchange='predictions_exchange', queue='pred_queue')
-
 print(' [*] Waiting for logs. To exit press CTRL+C')
 
 # Set up and load model
@@ -37,10 +32,15 @@ imagenet_class_index = json.load(open('./inference_engine/imagenet_class_index.j
 model = models.squeezenet1_0(pretrained=True, progress=True)
 model.eval()
 
-SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:rootpassword@database:3306/prediction"
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-session = Session()
+# Try to establish connection with DB
+# Raise exception if this is not possible
+try:
+    SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:rootpassword@database:3306/prediction"
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    session = Session()
+except:
+    raise Exception("Couldn't connect to database")
 
 # Predicition related function
 def transform_image(image_bytes):
@@ -60,7 +60,6 @@ def get_prediction(image_bytes):
     predicted_idx = str(y_hat.item())
     return imagenet_class_index[predicted_idx]
 
-
 def callback(ch, method, properties, body):
     uuid = str(body.decode("utf-8"))
     print("Received request for prediction UUID %s" % uuid)
@@ -72,10 +71,6 @@ def callback(ch, method, properties, body):
         print(pred_class[1])
         preds.prediction = pred_class[1]
         session.commit()
-
-
-
-
 
 channel.basic_consume(
     queue=queue_name, on_message_callback=callback, auto_ack=True)

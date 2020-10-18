@@ -20,7 +20,7 @@ try:
 except:
     raise Exception("Couldn't connect to rabbitmq")
 
-# Try to establish connection with MQ
+# Try to establish connection with DB
 # Raise exception if this is not possible
 try:
     SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:rootpassword@database:3306/prediction"
