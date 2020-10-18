@@ -33,7 +33,7 @@ channel.queue_bind(exchange='predictions_exchange', queue='pred_queue')
 print(' [*] Waiting for logs. To exit press CTRL+C')
 
 # Set up and load model
-imagenet_class_index = json.load(open('./server/imagenet_class_index.json'))
+imagenet_class_index = json.load(open('./inference_engine/imagenet_class_index.json'))
 model = models.squeezenet1_0(pretrained=True, progress=True)
 model.eval()
 
