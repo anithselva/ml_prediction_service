@@ -177,19 +177,19 @@ This would :
 
 (3) eliminate race condition between the server and the prediction engine. (For example, the current implementation assumes the server write to the DB will preceed the prediction engine inference for the same UUID. This may not be true depending on the latency of the DB)
 
-## Testing
+### Testing
 
 Due to time constraints, only a limited number of tests were written to verify functionality of the entire system. Given more time, unit tests would be written to test the system in smaller modules.
 
 The current tests rely on a live deployment. When unit tests are written, they would not rely on a deployed system, but instead only consider the logic itself. Useful metrics such as code coverage can be measured through that type of test system, and can also be used to gate pull-requests, and deployments (CI/CD)
 
-## Error Handling
+### Error Handling
 
 Due to time constraints, the level of error handling in the repository is minimal. With the system being made of multiple microsystems, it is especially important for error handling in order to improve the robustness of the overall system.
 
 Exceptions should be raised whenever necessary. Further, bad requests should also return Exceptions to the user to ensure that they can handle them as they wish to.
 
-## Environment and Secrets
+### Environment and Secrets
 
 Currently, environment names and secrets are hardcoded into the repo. This should not be the case. They should be passed into the container via a secrets management service, and then propagated into the code through ENV variables.
 
