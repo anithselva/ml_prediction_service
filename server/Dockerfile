@@ -13,5 +13,5 @@ RUN pip install --upgrade pip
 RUN pip install -r ./server/requirements.txt
 
 # command to run on container start
-# CMD [ "python", "./server.py" ]
-CMD ["uvicorn", "server.main:app", "--host", "0.0.0.0", "--port", "5000"]
+# CMD ["uvicorn", "server.main:app", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["./server/wait_for_it.sh" ,  "database:3306", "--strict" , "--timeout=30" , "--" , "uvicorn", "server.main:app", "--host", "0.0.0.0", "--port", "5000"]

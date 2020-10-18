@@ -12,7 +12,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db.PredictionEntry import PredictionEntry
 
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+try:
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
+except:
+    raise Exception("Couldn't connect to rabbitmq")
+
 channel = connection.channel()
 channel.exchange_declare(exchange='predictions_exchange', exchange_type='fanout')
 
@@ -21,10 +25,14 @@ class ImagePred(BaseModel):
     data: str
 
 app = FastAPI()
-SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:rootpassword@localhost:3306/prediction"
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-session = Session()
+try:
+    SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:rootpassword@database:3306/prediction"
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    session = Session()
+except:
+    raise Exception("Couldn't connect to database")
+
 
 # End points
 @app.get("/")

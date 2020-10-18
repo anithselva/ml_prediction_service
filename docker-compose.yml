@@ -11,6 +11,7 @@ services:
     depends_on:
       - rabbitmq
       - database
+      - server
     # ports:
     #   - "5672:5672"
     networks:
@@ -49,18 +50,18 @@ services:
     networks:
       - webnet
 
-#   server:
-#     # Location of Dockerfile if needed
-#     build: 
-#         context: .
-#         dockerfile: ./server/Dockerfile
-#     ports:
-#       - "5000:5000"
-#     depends_on:
-#       - rabbitmq
-#       - database
-
-
-
+  server:
+    # Location of Dockerfile if needed
+    build: 
+        context: .
+        dockerfile: ./server/Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - rabbitmq
+      - database
+    #   - inference-engine
+    networks:
+      - webnet
 networks:
   webnet:
