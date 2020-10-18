@@ -16,9 +16,11 @@ from pydantic import BaseModel
 
 import base64
 
+try:
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
+except:
+    raise Exception("Couldn't connect to rabbitmq")
 
-connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
 
 channel.exchange_declare(exchange='predictions_exchange', exchange_type='fanout')
@@ -32,14 +34,14 @@ print(' [*] Waiting for logs. To exit press CTRL+C')
 
 # Set up and load model
 imagenet_class_index = json.load(open('./server/imagenet_class_index.json'))
-model = models.squeezenet1_0(pretrained=True)
+model = models.squeezenet1_0(pretrained=True, progress=True)
 model.eval()
 
 class ImagePred(BaseModel):
     name: str
     data: str
 
-SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:rootpassword@localhost:3306/prediction"
+SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:rootpassword@database:3306/prediction"
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 session = Session()

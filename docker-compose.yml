@@ -1,21 +1,38 @@
-version: "3"
+version: "3.8"
 
 services:
 
-#   # Asynchronous Queue
-#   rabbitmq:
-#     image: "rabbitmq:3-management"
-#     ports:
-#       - "5672:5672"
-#       - "15672:15672"
-#     # volumes:
-#     #   - 'rabbitmq_data:/data'
+  inference-engine:
+    # Location of Dockerfile if needed
+    build: 
+        context: .
+        dockerfile: ./inference_engine/Dockerfile
+    restart: on-failure
+    depends_on:
+      - rabbitmq
+      - database
+    # ports:
+    #   - "5672:5672"
+    networks:
+      - webnet
 
-#     volumes:
-#         - rabbitmq_data
+  # Asynchronous Queue
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    # volumes:
+    #   - 'rabbitmq_data:/data'
+    hostname: rabbitmq
+    volumes:
+        - rabbitmq_data
+    networks:
+      - webnet
 
   database:
     image: mysql
+    hostname: database
     ports:
         - "3306:3306"
     command: 
@@ -28,10 +45,22 @@ services:
         MYSQL_ROOT_PASSWORD: rootpassword
         MYSQL_USER: user
         MYSQL_PASSWORD: userpassword
+    
+    networks:
+      - webnet
 
-  server:
+#   server:
+#     # Location of Dockerfile if needed
+#     build: 
+#         context: .
+#         dockerfile: ./server/Dockerfile
+#     ports:
+#       - "5000:5000"
+#     depends_on:
+#       - rabbitmq
+#       - database
 
-    # Location of Dockerfile if needed
-    build: server
-    ports:
-      - "5000:5000"
+
+
+networks:
+  webnet:

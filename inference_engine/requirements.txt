@@ -1,0 +1,6 @@
+torchvision
+sqlalchemy
+pymysql
+cryptography
+pika
+pydantic
