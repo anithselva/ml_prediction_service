@@ -20,6 +20,15 @@ In order to support asynchronous requests, a queue system is implemented to hand
 
 Prediction transactions are stored in a MySQL database. Having a fixed schema, a relational database was chosen. For this service, a UUID, Image String, and Prediction result is stored. With a UUID as primary key, and prediction result requiring no additional processing, using a SQL database will result in faster data retrieval times. 
 
+| uuid     	| img      	| prediction 	|
+|----------	|----------	|------------	|
+| sj22pd4o 	| /9j/ ... 	| dogsled    	|
+
+Data Types:
+uuid: VARCHAR - 50 Characters
+img : MEDIUM  - Limited to 1MB through python class mapping operators
+predcition: VARCHAT - 50 Characters
+
 **Prediction Engine**
 
 A Prediction Engine written in Python is used as consumer for the MQ (message queue). It operates on a call-back mechanism in order to retreive the UUID for the prediction request, 
@@ -84,18 +93,6 @@ curl --location --request GET 'http://127.0.0.1:5000/predictions/ab2o5pd2/'
 (2) Images are permitted to be stored in the database or some data volume for retrieval
 
 (3) Predictions are also permitted to be stored in the database. No purging of past predictions is required
-
-
-## Transaction Database Schema:
-
-| uuid     	| img      	| prediction 	|
-|----------	|----------	|------------	|
-| sj22pd4o 	| /9j/ ... 	| dogsled    	|
-
-Data Types:
-uuid: VARCHAR - 50 Characters
-img : MEDIUM  - Limited to 1MB through python class mapping operators
-predcition: VARCHAT - 50 Characters
 
 
 
