@@ -187,3 +187,12 @@ Due to time constraints, only a limited number of tests were written to verify f
 
 The current tests rely on a live deployment. When unit tests are written, they would not rely on a deployed system, but instead only consider the logic itself. Useful metrics such as code coverage can be measured through that type of test system, and can also be used to gate pull-requests, and deployments (CI/CD)
 
+## System Flow
+
+### Post Request (Submit a Prediction)
+
+![alt text](./docs/post_request.png "System Diagram")
+
+### Get Request (Request a Prediction Result)
+
+![alt text](./docs/get_request.png "System Diagram")
