@@ -7,45 +7,46 @@ import base64
 import pika # RabbitMQ
 import uuid
 
-# Prediction related dependencies
-from torchvision import models
-import torchvision.transforms as transforms
-from PIL import Image
-import json
-import io
+# # Prediction related dependencies
+# from torchvision import models
+# import torchvision.transforms as transforms
+# from PIL import Image
+# import json
+# import io
 
 # SQL Alchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db.PredictionEntry import PredictionEntry
 
-# Set up and load model
-imagenet_class_index = json.load(open('./server/imagenet_class_index.json'))
-model = models.squeezenet1_0(pretrained=True)
-model.eval()
+# # Set up and load model
+# imagenet_class_index = json.load(open('./server/imagenet_class_index.json'))
+# model = models.squeezenet1_0(pretrained=True)
+# model.eval()
 
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
-channel.queue_declare(queue='pred_queue')
+channel.exchange_declare(exchange='predictions_exchange', exchange_type='fanout')
+# channel.queue_declare(queue='pred_queue')
 
 # Predicition related function
-def transform_image(image_bytes):
-    my_transforms = transforms.Compose([transforms.Resize(255),
-                                        transforms.CenterCrop(224),
-                                        transforms.ToTensor(),
-                                        transforms.Normalize(
-                                            [0.485, 0.456, 0.406],
-                                            [0.229, 0.224, 0.225])])
-    image = Image.open(io.BytesIO(image_bytes))
-    return my_transforms(image).unsqueeze(0)
+# def transform_image(image_bytes):
+#     my_transforms = transforms.Compose([transforms.Resize(255),
+#                                         transforms.CenterCrop(224),
+#                                         transforms.ToTensor(),
+#                                         transforms.Normalize(
+#                                             [0.485, 0.456, 0.406],
+#                                             [0.229, 0.224, 0.225])])
+#     image = Image.open(io.BytesIO(image_bytes))
+#     return my_transforms(image).unsqueeze(0)
 
 
-def get_prediction(image_bytes):
-    tensor = transform_image(image_bytes=image_bytes)
-    outputs = model.forward(tensor)
-    _, y_hat = outputs.max(1)
-    predicted_idx = str(y_hat.item())
-    return imagenet_class_index[predicted_idx]
+# def get_prediction(image_bytes):
+#     tensor = transform_image(image_bytes=image_bytes)
+#     outputs = model.forward(tensor)
+#     _, y_hat = outputs.max(1)
+#     predicted_idx = str(y_hat.item())
+#     return imagenet_class_index[predicted_idx]
 
 class ImagePred(BaseModel):
     name: str
@@ -65,7 +66,7 @@ async def read_root():
 @app.post("/image/")
 async def post_prediction(ImagePred: ImagePred):
     logging.info("Received request")
-    img_raw   = base64.b64decode(ImagePred.data)
+    # img_raw   = base64.b64decode(ImagePred.data)
     # pred_class = get_prediction(img_raw)
 
     prediction_uuid = str(uuid.uuid4())[:8]
@@ -74,7 +75,7 @@ async def post_prediction(ImagePred: ImagePred):
     session.commit()
     resp = {"uuid": prediction_uuid}
 
-    channel.basic_publish(exchange='', routing_key='pred_queue', body=prediction_uuid)
+    channel.basic_publish(exchange='predictions_exchange', routing_key='', body=bytes(prediction_uuid, encoding='utf8'))
 
     return resp
 

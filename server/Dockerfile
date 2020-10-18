@@ -10,9 +10,8 @@ COPY . .
 
 # install dependencies
 RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-
+RUN pip install -r ./server/requirements.txt
 
 # command to run on container start
 # CMD [ "python", "./server.py" ]
-CMD ["uvicorn", "main:app", "--host", "127.0.0.1", "--port", "5000" ]
+CMD ["uvicorn", "server.main:app", "--host", "0.0.0.0", "--port", "5000"]
