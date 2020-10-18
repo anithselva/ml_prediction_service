@@ -31,9 +31,6 @@ The system supports asynchronous predictions. That is, the user is required to r
 The system will process the request and upload its result to the Predictions database.
 The user can retrieve their result by submitting a GET request by passing to it their UUID
 
-
-
-
 **Request a Prediction:**
 
 POST REQUEST : `localhost:5000/inference/image`
