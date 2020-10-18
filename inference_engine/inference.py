@@ -14,34 +14,6 @@ from PIL import Image
 import json
 import io
 
-# Try to establish connection with MQ
-# Raise exception if this is not possible
-try:
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
-except:
-    raise Exception("Couldn't connect to rabbitmq")
-channel = connection.channel()
-channel.exchange_declare(exchange='predictions_exchange', exchange_type='fanout')
-result = channel.queue_declare(queue='pred_queue', exclusive=True)
-queue_name = result.method.queue
-channel.queue_bind(exchange='predictions_exchange', queue='pred_queue')
-print(' [*] Waiting for logs. To exit press CTRL+C')
-
-# Set up and load model
-imagenet_class_index = json.load(open('./inference_engine/imagenet_class_index.json'))
-model = models.squeezenet1_0(pretrained=True, progress=True)
-model.eval()
-
-# Try to establish connection with DB
-# Raise exception if this is not possible
-try:
-    SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:rootpassword@database:3306/prediction"
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
-    Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    session = Session()
-except:
-    raise Exception("Couldn't connect to database")
-
 # Predicition related function
 def transform_image(image_bytes):
     my_transforms = transforms.Compose([transforms.Resize(255),
@@ -72,11 +44,39 @@ def callback(ch, method, properties, body):
         preds.prediction = pred_class[1]
         session.commit()
 
-channel.basic_consume(
-    queue=queue_name, on_message_callback=callback, auto_ack=True)
-
-channel.start_consuming()
-
-
 if __name__ == '__main__':
-    
+
+    # Try to establish connection with MQ
+    # Raise exception if this is not possible
+    try:
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
+    except:
+        raise Exception("Couldn't connect to rabbitmq")
+    channel = connection.channel()
+    channel.exchange_declare(exchange='predictions_exchange', exchange_type='fanout')
+    result = channel.queue_declare(queue='pred_queue', exclusive=True)
+    queue_name = result.method.queue
+    channel.queue_bind(exchange='predictions_exchange', queue='pred_queue')
+    print(' [*] Waiting for logs. To exit press CTRL+C')
+
+    # Try to establish connection with DB
+    # Raise exception if this is not possible
+    try:
+        SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:rootpassword@database:3306/prediction"
+        engine = create_engine(SQLALCHEMY_DATABASE_URL)
+        Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        session = Session()
+    except:
+        raise Exception("Couldn't connect to database")
+
+    # Set up and load model
+    imagenet_class_index = json.load(open('./inference_engine/imagenet_class_index.json'))
+    model = models.squeezenet1_0(pretrained=True, progress=True)
+    model.eval()
+
+
+    channel.basic_consume(
+        queue=queue_name, on_message_callback=callback, auto_ack=True)
+
+    channel.start_consuming()
+
