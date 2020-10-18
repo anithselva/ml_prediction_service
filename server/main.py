@@ -47,8 +47,7 @@ async def read_root():
     """
     return {"Hello": "World"}
 
-#
-@app.post("/image/")
+@app.post("/inference/image")
 async def post_prediction(ImagePred: ImagePred):
     """
     POST Method
@@ -84,18 +83,20 @@ async def post_prediction(ImagePred: ImagePred):
 
     return resp
 
-@app.get("/get_prediction/{prediction_uuid}")
+@app.get("/predictions/{prediction_uuid}")
 async def read_table(prediction_uuid: str):
     """
     GET Method
-        localhost:5000/get_prediction/<uuid>
+        localhost:5000/predictions/<uuid>
 
     :return: 
         {
             prediction: prediction_class
         }
     """
-    preds = session.query(PredictionEntry).filter_by(uuid=prediction_uuid).first()
+    # preds = session.query(PredictionEntry).filter_by(uuid=prediction_uuid).first()
+    preds = session.query(PredictionEntry).get(prediction_uuid)
+
     if preds.prediction is None:
         return {"prediction": None}
     else:
