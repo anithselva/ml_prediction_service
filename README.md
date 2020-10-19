@@ -10,11 +10,11 @@ The following diagram describes the system at a high level
 
 **FastAPI and Uvicorn**: 
 
-FastAPI ia a simple, but powerful web RESTful API framework based in Python. Benchmark tests have shown it to be on-part with NodeJS and Go. It also has a simple interface, allowing for an API server to be brought up within a few lines of code. To deploy this server, Uvicorn is used to host the web application
+FastAPI ia a simple, but powerful web RESTful API framework based in Python. Benchmark tests have shown it to be on-par in performance to web applications written in NodeJS or Go. It also has a simple interface, allowing for an API server to be brought up within a few lines of code. To deploy this server, Uvicorn is used to host the web application in a WSGI (Web Server Gateway Interface) to handle requests, load-balancing (if applicable), etc.
 
 **RabbitMQ**: 
 
-In order to support asynchronous requests, a queue system is implemented to handle prediction requests in message-broker manner. RabbitMQ was used for this purpose, based on its simplicity and that it can easily deployed in the cloud and deployed in distrubuted environments
+In order to support asynchronous requests, a queue system is implemented to handle prediction requests in message-broker scheme. By supporting asynchronous requests, prediction requestss which may take longer than a typical HTTP timeout can be serviced in the background. By doing so, RabbitMQ was used for this purpose, based on its simplicity and that it can easily deployed in the cloud and deployed in distrubuted environments
 
 **MySQL**
 
@@ -194,6 +194,12 @@ Exceptions should be raised whenever necessary. Further, bad requests should als
 ### Environment and Secrets
 
 Currently, environment names and secrets are hardcoded into the repo. This should not be the case. They should be passed into the container via a secrets management service, and then propagated into the code through ENV variables.
+
+## Points of Failure:
+
+(1) Race Condition: Prediction Engine assumes that the UUID entry and corresponding raw img data is stored in the database. This is populated by the server upon POST request. This order, however, is not guaranteed and is not currently handled by the system
+
+(2) Failure to Populate the Database: Case where the UUID is enqueued onto the MQ, but the database input entry failed. In thie case, the Prediction Engine is not able to service the UUID prediction and will error out. This case is also not handled by the prediction engines
 
 
 # Appendix 
