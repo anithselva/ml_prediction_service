@@ -3,7 +3,6 @@ import logging
 import base64
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
-import pika 
 import uuid
 import uvicorn
 
@@ -12,14 +11,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db.PredictionEntry import PredictionEntry
 
-# Try to establish connection with MQ
-# Raise exception if this is not possible
-try:
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
-    channel = connection.channel()
-    channel.exchange_declare(exchange='predictions_exchange', exchange_type='fanout')
-except:
-    raise Exception("Couldn't connect to rabbitmq")
+from utils.RabbitMQ import RabbitMQ
+
+rabbit_pub = RabbitMQ("rabbitmq", "predictions_exchange")
+rabbit_pub.connect()
 
 # Try to establish connection with DB
 # Raise exception if this is not possible
@@ -79,7 +74,7 @@ async def post_prediction(ImagePred: ImagePred):
     session.commit()
     resp = {"uuid": prediction_uuid}
 
-    channel.basic_publish(exchange='predictions_exchange', routing_key='', body=bytes(prediction_uuid, encoding='utf8'))
+    rabbit_pub.publish(prediction_uuid)
 
     return resp
 
