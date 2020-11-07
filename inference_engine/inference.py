@@ -5,7 +5,7 @@ import base64
 # SQL Alchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from PredictionEntry import PredictionEntry
+from db.PredictionEntry import PredictionEntry
 
 # Prediction related dependencies
 from torchvision import models
@@ -13,6 +13,8 @@ import torchvision.transforms as transforms
 from PIL import Image
 import json
 import io
+
+from utils.RabbitMQ import RabbitMQ
 
 # Prediction related function
 def transform_image(image_bytes):
@@ -49,16 +51,19 @@ if __name__ == '__main__':
 
     # Try to establish connection with MQ
     # Raise exception if this is not possible
-    try:
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
-    except:
-        raise Exception("Couldn't connect to rabbitmq")
-    channel = connection.channel()
-    channel.exchange_declare(exchange='predictions_exchange', exchange_type='fanout')
-    result = channel.queue_declare(queue='pred_queue', exclusive=True)
-    queue_name = result.method.queue
-    channel.queue_bind(exchange='predictions_exchange', queue='pred_queue')
-    print(' [*] Waiting for logs. To exit press CTRL+C')
+    # try:
+    #     connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
+    # except:
+    #     raise Exception("Couldn't connect to rabbitmq")
+    # channel = connection.channel()
+    # channel.exchange_declare(exchange='predictions_exchange', exchange_type='fanout')
+    # result = channel.queue_declare(queue='pred_queue', exclusive=True)
+    # queue_name = result.method.queue
+    # channel.queue_bind(exchange='predictions_exchange', queue='pred_queue')
+    # print(' [*] Waiting for logs. To exit press CTRL+C')
+
+    rabbit_sub = RabbitMQ("rabbitmq", "predictions_exchange", "pred_queue")
+    rabbit_sub.connect()
 
     # Try to establish connection with DB
     # Raise exception if this is not possible
@@ -75,9 +80,10 @@ if __name__ == '__main__':
     model = models.squeezenet1_0(pretrained=True, progress=True)
     model.eval()
 
-    # Start channel to handle messages with callback
-    channel.basic_consume(
-        queue=queue_name, on_message_callback=callback, auto_ack=True)
+    rabbit_sub.subscribe(callback)
+    # # Start channel to handle messages with callback
+    # channel.basic_consume(
+    #     queue=queue_name, on_message_callback=callback, auto_ack=True)
 
-    channel.start_consuming()
+    # channel.start_consuming()
 
