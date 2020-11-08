@@ -49,19 +49,7 @@ def callback(ch, method, properties, body):
 
 if __name__ == '__main__':
 
-    # Try to establish connection with MQ
-    # Raise exception if this is not possible
-    # try:
-    #     connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
-    # except:
-    #     raise Exception("Couldn't connect to rabbitmq")
-    # channel = connection.channel()
-    # channel.exchange_declare(exchange='predictions_exchange', exchange_type='fanout')
-    # result = channel.queue_declare(queue='pred_queue', exclusive=True)
-    # queue_name = result.method.queue
-    # channel.queue_bind(exchange='predictions_exchange', queue='pred_queue')
-    # print(' [*] Waiting for logs. To exit press CTRL+C')
-
+    # Decalare the RabbitMQ class and attempt to make connection to MQ
     rabbit_sub = RabbitMQ("rabbitmq", "predictions_exchange", "pred_queue")
     rabbit_sub.connect()
 
@@ -81,9 +69,3 @@ if __name__ == '__main__':
     model.eval()
 
     rabbit_sub.subscribe(callback)
-    # # Start channel to handle messages with callback
-    # channel.basic_consume(
-    #     queue=queue_name, on_message_callback=callback, auto_ack=True)
-
-    # channel.start_consuming()
-
