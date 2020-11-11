@@ -8,5 +8,3 @@ build-server:
 build-inference-engine:
 	docker build -f inference_engine/Dockerfile . -t ml_pred_inference_engine:$(tag)
 
-build-db:
-	docker build -f db/Dockerfile . -t ml_pred_db:$(tag)
