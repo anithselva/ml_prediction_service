@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-pred-database
+  labels:
+    app: ml-pred-database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-pred-database
+  template:
+    metadata:
+      labels:
+        app: ml-pred-database
+    spec:
+      hostname: database
+      containers:
+      - name: database
+        image: mysql
+        ports:
+        - containerPort: 3306
+        # command: 
+        # - --sort_buffer_size=100000000"
+        env:
+        - name: MYSQL_ROOT_USER
+          value: "admin"
+        - name: MYSQL_ROOT_PASSWORD
+          value: "rootpassword"
+        - name: MYSQL_USER
+          value: "user"
+        - name: MYSQL_PASSWORD
+          value: "userpassword"
+        volumeMounts:
+        - name: mysql-initdb
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: mysql-initdb
+        configMap:
+          name: mysql-initdb-config
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-initdb-config
+data:
+  initdb.sql: |
+    CREATE DATABASE IF NOT EXISTS prediction;
+    USE prediction;
+    CREATE TABLE IF NOT EXISTS predictions (
+      uuid VARCHAR(50),
+      img MEDIUMTEXT DEFAULT NULL,
+      prediction VARCHAR(512) DEFAULT NULL,
+      PRIMARY KEY (uuid));
+    SET GLOBAL sort_buffer_size = 1024 * 1024 * 100;
+
+
+---
+apiVersion: v1
+kind: Service                    # Type of kubernetes resource
+metadata:
+  name: database                 # hostname of resource
+spec:
+  type: NodePort                 # A port is opened on each node in your cluster via Kube proxy.
+  ports:
+   - name: http
+     protocol: TCP
+     port: 3306
+     targetPort: 3306
+  selector:
+    app: ml-pred-database         # Map any pod with label `app=rabbitmq-engine` to this service

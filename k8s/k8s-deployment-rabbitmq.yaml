@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rabbitmq
+  name: ml-pred-rabbitmq
   labels:
-    app: rabbitmq-engine
+    app: ml-pred-rabbitmq-engine
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: rabbitmq-engine
+      app: ml-pred-rabbitmq-engine
   template:
     metadata:
       labels:
-        app: rabbitmq-engine
+        app: ml-pred-rabbitmq-engine
     spec:
-      hostname: rabbitmq
+      hostname: ml-pred-rabbitmq-engine
       containers:
-      - name: rabbitmq-engine
+      - name: ml-pred-rabbitmq-engine
         image: rabbitmq:3-management
         ports:
         - containerPort: 5672
@@ -39,4 +39,4 @@ spec:
      port: 5672
      targetPort: 5672
   selector:
-    app: rabbitmq-engine         # Map any pod with label `app=rabbitmq-engine` to this service
+    app: ml-pred-rabbitmq-engine         # Map any pod with label `app=rabbitmq-engine` to this service

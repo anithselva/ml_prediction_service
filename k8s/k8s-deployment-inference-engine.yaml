@@ -5,7 +5,7 @@ metadata:
   labels:
     app: ml-pred-inf-engine
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: ml-pred-inf-engine
@@ -17,5 +17,3 @@ spec:
       containers:
       - name: ml-pred-inf-engine
         image: gcr.io/single-inquiry-185401/ml_pred_inference_engine
-        ports:
-        - containerPort: 5672,15672
