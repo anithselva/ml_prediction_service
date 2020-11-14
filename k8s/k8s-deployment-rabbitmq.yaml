@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-pred-rabbitmq
+  labels:
+    app: ml-pred-rabbitmq-engine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-pred-rabbitmq-engine
+  template:
+    metadata:
+      labels:
+        app: ml-pred-rabbitmq-engine
+    spec:
+      hostname: ml-pred-rabbitmq-engine
+      containers:
+      - name: ml-pred-rabbitmq-engine
+        image: rabbitmq:3-management
+        ports:
+        - containerPort: 5672
+        - containerPort: 15672
+
+---
+apiVersion: v1
+kind: Service                    # Type of kubernetes resource
+metadata:
+  name: rabbitmq                 # hostname of resource
+spec:
+  type: NodePort                 # A port is opened on each node in your cluster via Kube proxy.
+  ports:
+   - name: http
+     protocol: TCP
+     port: 15672
+     targetPort: 15672
+   - name: amqp
+     protocol: TCP
+     port: 5672
+     targetPort: 5672
+  selector:
+    app: ml-pred-rabbitmq-engine         # Map any pod with label `app=rabbitmq-engine` to this service

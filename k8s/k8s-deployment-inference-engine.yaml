@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-pred-inf-engine-deployment
+  labels:
+    app: ml-pred-inf-engine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-pred-inf-engine
+  template:
+    metadata:
+      labels:
+        app: ml-pred-inf-engine
+    spec:
+      containers:
+      - name: ml-pred-inf-engine
+        image: gcr.io/single-inquiry-185401/ml_pred_inference_engine
